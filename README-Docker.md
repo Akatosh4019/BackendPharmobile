@@ -1,12 +1,12 @@
 # Backend local para la práctica Ktor GET
 
-Este entorno levanta Oracle Free y PharmaBackend. El archivo `.env` contiene credenciales **solo de desarrollo local** y no se versiona.
+Este entorno levanta Oracle Free y PharmaBackend. El archivo `.env` contiene credenciales **solo de desarrollo local** y no se versiona. `.env.example` incluye valores de demostración para el primer arranque; cámbialos si usarás el servicio fuera de una prueba local.
 
 Desde esta carpeta:
 
 ```powershell
 Copy-Item .env.example .env
-# Edita .env y define contraseñas locales antes de levantar los servicios.
+# Opcional: cambia las contraseñas de demostración en .env.
 mvn -DskipTests package
 docker compose up -d --build
 docker compose ps
