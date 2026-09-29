@@ -1,0 +1,6 @@
+.git
+.idea
+.mvn
+src
+target/*
+!target/PharmaBackend-0.0.1-SNAPSHOT.jar

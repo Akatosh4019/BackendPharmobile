@@ -11,9 +11,9 @@
 	<groupId>pe.edu.upeu</groupId>
 	<artifactId>PharmaBackend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
-	<url/>
+	<name>BackendPharmobile</name>
+	<description>Adaptación de PharmaSoft para PharmaMobil</description>
+	<url>https://github.com/Akatosh4019/BackendPharmobile</url>
 	<licenses>
 		<license/>
 	</licenses>
@@ -21,10 +21,10 @@
 		<developer/>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
+		<connection>scm:git:https://github.com/Akatosh4019/BackendPharmobile.git</connection>
+		<developerConnection>scm:git:https://github.com/Akatosh4019/BackendPharmobile.git</developerConnection>
 		<tag/>
-		<url/>
+		<url>https://github.com/Akatosh4019/BackendPharmobile</url>
 	</scm>
 	<properties>
 		<java.version>21</java.version>

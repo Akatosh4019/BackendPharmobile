@@ -1,0 +1,233 @@
+{
+  "info": {
+    "name": "PharmaMobil | Sesión 07 - PharmaSoft",
+    "_postman_id": "d7c9448e-3c31-4b58-beb8-e5db29b25070",
+    "description": "Colección local para PharmaSoft. La sesión 7 evalúa GET /api/v1/productos: respuesta 200, paginación y lista en Android/iOS. Empieza por 00 Conexión y 01 GET obligatorio. La carpeta de POST es opcional para preparar datos, pero la guía pide la captura de creación en Swagger UI. Ventas y detalles empiezan vacíos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 | Conexión",
+      "description": "Comprueba que Docker y la API están encendidos antes de listar datos.",
+      "item": [
+        {
+          "name": "Estado del backend",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/health",
+            "description": "Debe responder 200 con el mensaje de funcionamiento. Si falla, inicia Docker desde la carpeta del backend."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 | GET obligatorio - productos",
+      "description": "Este es el endpoint evaluado en la sesión 7. Los datos iniciales se cargan una sola vez por Flyway.",
+      "item": [
+        {
+          "name": "Productos | GET principal de la práctica",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/productos?pagina={{pagina}}&tamanio={{tamanio}}",
+            "description": "La respuesta 200 es paginada; la lista real está en contenido. Los cuatro productos iniciales son Paracetamol, Amoxicilina, Loratadina y Alcohol medicinal. La app consume este mismo endpoint."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Respuesta 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Página de productos válida', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.contenido).to.be.an('array');",
+                  "  pm.expect(body).to.have.property('totalElementos');",
+                  "  if (body.contenido.length) pm.expect(body.contenido[0]).to.include.all.keys('id', 'nombre', 'precio', 'stock', 'estado');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Producto por ID | comprobación adicional",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/productos/{{productoId}}",
+            "description": "Consulta un producto concreto. No sustituye al GET del listado exigido en la sesión 7."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 | Otros GET de entidades base",
+      "description": "Consultas útiles para revisar la base, pero no forman parte del GET evaluado en la sesión 7.",
+      "item": [
+        {
+          "name": "Categorías | apoyo del catálogo",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/categorias",
+            "description": "Lista no paginada. Las categorías relacionan los productos: Medicamentos y Cuidado personal."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Respuesta 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Categorías en una lista', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Clientes | datos base",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/clientes?pagina={{pagina}}&tamanio={{tamanio}}",
+            "description": "Lista paginada de clientes ficticios para pruebas posteriores. No forma parte del GET exigido en la sesión 7."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Respuesta 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Página de clientes válida', () => pm.expect(pm.response.json().contenido).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 | Datos generados al operar",
+      "description": "Estas entidades no tienen datos por defecto. No es un fallo: aparecen cuando se registra una venta.",
+      "item": [
+        {
+          "name": "Ventas | inicialmente vacío",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/ventas?pagina={{pagina}}&tamanio={{tamanio}}",
+            "description": "Devuelve 200 y contenido vacío hasta registrar ventas. Cada venta incluye su lista detalles; no existe un GET separado para detalle_ventas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Respuesta 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Página de ventas válida', () => pm.expect(pm.response.json().contenido).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Detalle de una venta | usar cuando exista",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/ventas/{{ventaId}}",
+            "description": "Cuando registres una venta, coloca su ID en la variable ventaId. El JSON incluye detalles con producto, cantidad, precio y subtotal. Antes de eso, un ID inexistente devuelve 404 y es normal."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 | Reportes opcionales",
+      "description": "Estos GET resumen ventas registradas. Devuelven listas vacías mientras no haya ventas; no son parte de la sesión 7.",
+      "item": [
+        {
+          "name": "Ventas por categoría",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/reportes/ventas-por-categoria",
+            "description": "Agrupa unidades e importes por categoría, solo de ventas registradas."
+          },
+          "response": []
+        },
+        {
+          "name": "Productos más vendidos",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/reportes/productos-mas-vendidos",
+            "description": "Ranking basado en los detalles de ventas registradas."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 | Preparar datos - ejecutar manualmente",
+      "description": "POST opcionales para crear datos desde Postman. Para la evidencia exacta de la guía, haz estas operaciones en Swagger UI y captura la pantalla. No ejecutes esta carpeta completa repetidamente: los nombres únicos podrían causar conflicto.",
+      "item": [
+        {
+          "name": "Crear categoría de práctica",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/categorias",
+            "description": "Crear primero una categoría; conserva el id devuelto para el POST de productos. En Swagger UI está en categoria-controller.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Evidencia Sesion 7\",\n  \"descripcion\": \"Categoria de demostracion\",\n  \"estado\": true\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Categoría creada (201)', () => pm.response.to.have.status(201));",
+                "if (pm.response.code === 201) pm.collectionVariables.set('categoriaId', pm.response.json().id);"
+              ]
+            }
+          }],
+          "response": []
+        },
+        {
+          "name": "Crear producto de práctica",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/productos",
+            "description": "Usa categoriaId devuelto por la categoría anterior. En Swagger UI está en producto-controller. Cambia el nombre para crear otros productos sin duplicados.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Vitamina C 500 mg\",\n  \"precio\": 9.90,\n  \"stock\": 30,\n  \"estado\": true,\n  \"categoriaId\": {{categoriaId}}\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": ["pm.test('Producto creado (201)', () => pm.response.to.have.status(201));"]
+            }
+          }],
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "pagina", "value": "0", "type": "string" },
+    { "key": "tamanio", "value": "20", "type": "string" },
+    { "key": "productoId", "value": "1", "type": "string" },
+    { "key": "categoriaId", "value": "1", "type": "string" },
+    { "key": "ventaId", "value": "1", "type": "string" }
+  ]
+}
